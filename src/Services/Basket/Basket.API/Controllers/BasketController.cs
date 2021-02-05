@@ -10,6 +10,7 @@ using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MassTransit;
 
 namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
 {
@@ -21,18 +22,21 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
         private readonly IBasketRepository _repository;
         private readonly IIdentityService _identityService;
         private readonly IEventBus _eventBus;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<BasketController> _logger;
 
         public BasketController(
             ILogger<BasketController> logger,
             IBasketRepository repository,
             IIdentityService identityService,
-            IEventBus eventBus)
+            IEventBus eventBus,
+            IPublishEndpoint publishEndpoint)
         {
             _logger = logger;
             _repository = repository;
             _identityService = identityService;
             _eventBus = eventBus;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet("{id}")]
@@ -80,7 +84,8 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
             // order creation process
             try
             {
-                _eventBus.Publish(eventMessage);
+                //_eventBus.Publish(eventMessage);
+                await _publishEndpoint.Publish(eventMessage);
             }
             catch (Exception ex)
             {

@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using MassTransit;
 
 namespace Microsoft.eShopOnContainers.Services.Basket.API
 {
@@ -177,6 +178,13 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IBasketRepository, RedisBasketRepository>();
             services.AddTransient<IIdentityService, IdentityService>();
+
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+                //configurator.ReceiveEndpoint("eshop_event_bus", conf => {});
+            }));
+            services.AddMassTransitHostedService();
 
             services.AddOptions();
 

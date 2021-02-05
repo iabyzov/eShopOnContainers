@@ -9,10 +9,12 @@ using Ordering.API.Application.IntegrationEvents.Events;
 using Serilog.Context;
 using System.Threading.Tasks;
 using System;
+using Basket.API.IntegrationEvents.Events;
+using MassTransit;
 
 namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {
-    public class UserCheckoutAcceptedIntegrationEventHandler : IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>
+    public class UserCheckoutAcceptedIntegrationEventHandler : IConsumer<UserCheckoutAcceptedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<UserCheckoutAcceptedIntegrationEventHandler> _logger;
@@ -34,8 +36,9 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
         /// order items.
         /// </param>
         /// <returns></returns>
-        public async Task Handle(UserCheckoutAcceptedIntegrationEvent @event)
+        public async Task Consume(ConsumeContext<UserCheckoutAcceptedIntegrationEvent> context)
         {
+            var @event = context.Message;
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {
                 _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Program.AppName, @event);
@@ -78,5 +81,6 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
                 }
             }
         }
+      
     }
 }

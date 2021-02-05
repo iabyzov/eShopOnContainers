@@ -47,6 +47,10 @@
     <PackageReference Include="Google.Protobuf" Version="3.11.2" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.25.0" />
     <PackageReference Include="Grpc.Tools" Version="2.25.0" PrivateAssets="All" />
+    <PackageReference Include="MassTransit" Version="7.1.2" />
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.1.2" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.1.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.1.2" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="MediatR" Version="7.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />

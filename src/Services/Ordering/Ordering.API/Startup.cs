@@ -1,4 +1,7 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Ordering.API
+﻿using MassTransit;
+using Ordering.API.Application.IntegrationEvents.EventHandling;
+
+namespace Microsoft.eShopOnContainers.Services.Ordering.API
 {
     using AspNetCore.Http;
     using Autofac;
@@ -63,6 +66,20 @@
                 .AddCustomSwagger(Configuration)
                 .AddCustomIntegrations(Configuration)
                 .AddCustomConfiguration(Configuration)
+                .AddMassTransit(x =>
+                {
+                    x.AddConsumer<UserCheckoutAcceptedIntegrationEventHandler>();
+                    //x.SetKebabCaseEndpointNameFormatter();
+                    x.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host(Configuration["EventBusConnection"]);
+                        cfg.ReceiveEndpoint("order-listener", e =>
+                        {
+                            e.ConfigureConsumer<UserCheckoutAcceptedIntegrationEventHandler>(context);
+                        });
+                    });
+                })
+                .AddMassTransitHostedService()
                 .AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration);
             //configure autofac
@@ -139,7 +156,7 @@
         {
             var eventBus = app.ApplicationServices.GetRequiredService<BuildingBlocks.EventBus.Abstractions.IEventBus>();
 
-            eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
+            //eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
             eventBus.Subscribe<GracePeriodConfirmedIntegrationEvent, IIntegrationEventHandler<GracePeriodConfirmedIntegrationEvent>>();
             eventBus.Subscribe<OrderStockConfirmedIntegrationEvent, IIntegrationEventHandler<OrderStockConfirmedIntegrationEvent>>();
             eventBus.Subscribe<OrderStockRejectedIntegrationEvent, IIntegrationEventHandler<OrderStockRejectedIntegrationEvent>>();
