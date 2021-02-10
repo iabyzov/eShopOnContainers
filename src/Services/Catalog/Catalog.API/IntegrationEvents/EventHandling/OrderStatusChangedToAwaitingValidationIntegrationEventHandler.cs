@@ -1,4 +1,6 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.EventHandling
+﻿using Ordering.API.Application.IntegrationEvents.Events;
+
+namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.EventHandling
 {
     using BuildingBlocks.EventBus.Abstractions;
     using BuildingBlocks.EventBus.Events;

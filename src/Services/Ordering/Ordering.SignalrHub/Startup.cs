@@ -16,11 +16,11 @@ using Microsoft.Extensions.Logging;
 using Ordering.SignalrHub.AutofacModules;
 using Ordering.SignalrHub.IntegrationEvents;
 using Ordering.SignalrHub.IntegrationEvents.EventHandling;
-using Ordering.SignalrHub.IntegrationEvents.Events;
 using RabbitMQ.Client;
 using System;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub
 {

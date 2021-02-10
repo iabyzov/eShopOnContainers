@@ -1,4 +1,6 @@
-﻿namespace Ordering.API.Application.IntegrationEvents.EventHandling
+﻿using Payment.API.IntegrationEvents.Events;
+
+namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {
     using MediatR;
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.Extensions.Logging;
-using Ordering.SignalrHub.IntegrationEvents.Events;
 using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
 {

@@ -1,6 +1,7 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Marketing.API.IntegrationEvents.Handlers
+﻿using Microsoft.eShopOnContainers.Services.Locations.API.IntegrationEvents.Events;
+
+namespace Microsoft.eShopOnContainers.Services.Marketing.API.IntegrationEvents.Handlers
 {
-    using Marketing.API.IntegrationEvents.Events;
     using Marketing.API.Model;
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
     using Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure.Repositories;

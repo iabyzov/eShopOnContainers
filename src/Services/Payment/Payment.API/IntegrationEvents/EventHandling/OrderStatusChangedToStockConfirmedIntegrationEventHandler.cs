@@ -1,4 +1,6 @@
-﻿namespace Payment.API.IntegrationEvents.EventHandling
+﻿using Ordering.API.Application.IntegrationEvents.Events;
+
+namespace Payment.API.IntegrationEvents.EventHandling
 {
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;

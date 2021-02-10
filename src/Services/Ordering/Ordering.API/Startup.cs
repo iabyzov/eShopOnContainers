@@ -1,5 +1,8 @@
 ﻿using MassTransit;
+using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
 using Ordering.API.Application.IntegrationEvents.EventHandling;
+using Ordering.BackgroundTasks.Events;
+using Payment.API.IntegrationEvents.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Ordering.API
 {

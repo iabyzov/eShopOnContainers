@@ -1,4 +1,4 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Marketing.API.IntegrationEvents.Events
+﻿namespace Microsoft.eShopOnContainers.Services.Locations.API.IntegrationEvents.Events
 {
     using Marketing.API.Model;
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;

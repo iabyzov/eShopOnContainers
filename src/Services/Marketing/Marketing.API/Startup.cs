@@ -19,7 +19,6 @@
     using Infrastructure.Filters;
     using Infrastructure.Repositories;
     using Infrastructure.Services;
-    using IntegrationEvents.Events;
     using Marketing.API.IntegrationEvents.Handlers;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;

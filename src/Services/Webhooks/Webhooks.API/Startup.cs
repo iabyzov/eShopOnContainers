@@ -26,6 +26,8 @@ using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Threading;
+using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
+using Ordering.API.Application.IntegrationEvents.Events;
 using Webhooks.API.Infrastructure;
 using Webhooks.API.IntegrationEvents;
 using Webhooks.API.Services;

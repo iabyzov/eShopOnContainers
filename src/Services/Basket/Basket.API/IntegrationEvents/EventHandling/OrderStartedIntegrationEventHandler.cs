@@ -1,11 +1,11 @@
-﻿using Basket.API.IntegrationEvents.Events;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
+﻿using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.eShopOnContainers.Services.Basket.API;
 using Microsoft.eShopOnContainers.Services.Basket.API.Model;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 using System;
 using System.Threading.Tasks;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Basket.API.IntegrationEvents.EventHandling
 {

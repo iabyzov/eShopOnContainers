@@ -1,6 +1,6 @@
 ﻿using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
 
-namespace Webhooks.API.IntegrationEvents
+namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events
 {
     public class ProductPriceChangedIntegrationEvent : IntegrationEvent
     {

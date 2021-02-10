@@ -9,6 +9,7 @@ using Ordering.API.Application.Commands;
 using Ordering.API.Application.IntegrationEvents.Events;
 using Serilog.Context;
 using System.Threading.Tasks;
+using Ordering.BackgroundTasks.Events;
 
 namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {

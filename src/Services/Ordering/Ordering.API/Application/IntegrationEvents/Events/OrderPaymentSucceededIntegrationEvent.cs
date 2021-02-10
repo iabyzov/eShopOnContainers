@@ -1,4 +1,4 @@
-﻿namespace Ordering.API.Application.IntegrationEvents.Events
+﻿namespace Payment.API.IntegrationEvents.Events
 {
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
 

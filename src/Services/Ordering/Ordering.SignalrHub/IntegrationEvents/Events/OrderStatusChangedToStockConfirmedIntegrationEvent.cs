@@ -1,6 +1,6 @@
 ﻿using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
 
-namespace Ordering.SignalrHub.IntegrationEvents.Events
+namespace Ordering.API.Application.IntegrationEvents.Events
 {
     public class OrderStatusChangedToStockConfirmedIntegrationEvent : IntegrationEvent
     {
