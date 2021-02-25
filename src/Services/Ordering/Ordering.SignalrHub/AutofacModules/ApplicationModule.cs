@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub.AutofacModules
 {
@@ -23,7 +24,7 @@ namespace Ordering.SignalrHub.AutofacModules
         {
 
             builder.RegisterAssemblyTypes(typeof(OrderStatusChangedToAwaitingValidationIntegrationEvent).GetTypeInfo().Assembly)
-                .AsClosedTypesOf(typeof(IIntegrationEventHandler<>));
+                .AsClosedTypesOf(typeof(IntegrationEventHandlerBase<>));
 
         }
     }

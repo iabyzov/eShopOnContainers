@@ -1,4 +1,6 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Locations.API.Infrastructure.Services
+﻿using MassTransit;
+
+namespace Microsoft.eShopOnContainers.Services.Locations.API.Infrastructure.Services
 {
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
     using Microsoft.eShopOnContainers.Services.Locations.API.Infrastructure.Exceptions;
@@ -16,15 +18,18 @@
         private readonly ILocationsRepository _locationsRepository;
         private readonly IEventBus _eventBus;
         private readonly ILogger<LocationsService> _logger;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public LocationsService(
             ILocationsRepository locationsRepository,
             IEventBus eventBus,
-            ILogger<LocationsService> logger)
+            ILogger<LocationsService> logger,
+            IPublishEndpoint publishEndpoint)
         {
             _locationsRepository = locationsRepository ?? throw new ArgumentNullException(nameof(locationsRepository));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Locations> GetLocationAsync(int locationId)
@@ -63,19 +68,20 @@
 
             // Publish integration event to update marketing read data model
             // with the new locations updated
-            PublishNewUserLocationPositionIntegrationEvent(userId, currentUserAreaLocationList);
+            await PublishNewUserLocationPositionIntegrationEvent(userId, currentUserAreaLocationList);
 
             return true;
         }
 
-        private void PublishNewUserLocationPositionIntegrationEvent(string userId, List<Locations> newLocations)
+        private async Task PublishNewUserLocationPositionIntegrationEvent(string userId, List<Locations> newLocations)
         {
             var newUserLocations = MapUserLocationDetails(newLocations);
             var @event = new UserLocationUpdatedIntegrationEvent(userId, newUserLocations);
 
             _logger.LogInformation("----- Publishing integration event: {IntegrationEventId} from {AppName} - ({@IntegrationEvent})", @event.Id, Program.AppName, @event);
 
-            _eventBus.Publish(@event);
+            //_eventBus.Publish(@event);
+            await _publishEndpoint.Publish(@event);
         }
 
         private List<UserLocationDetails> MapUserLocationDetails(List<Locations> newLocations)

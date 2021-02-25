@@ -72,14 +72,17 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                 .AddMassTransit(x =>
                 {
                     x.AddConsumer<UserCheckoutAcceptedIntegrationEventHandler>();
-                    //x.SetKebabCaseEndpointNameFormatter();
+                    x.AddConsumer<OrderPaymentSucceededIntegrationEventHandler>();
+                    x.AddConsumer<OrderPaymentFailedIntegrationEventHandler>();
+                    x.AddConsumer<OrderStockConfirmedIntegrationEventHandler>();
+                    x.AddConsumer<OrderStockRejectedIntegrationEventHandler>();
+                    x.AddConsumer<GracePeriodConfirmedIntegrationEventHandler>();
+                    
+                    x.SetKebabCaseEndpointNameFormatter();
                     x.UsingRabbitMq((context, cfg) =>
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
-                        cfg.ReceiveEndpoint("order-listener", e =>
-                        {
-                            e.ConfigureConsumer<UserCheckoutAcceptedIntegrationEventHandler>(context);
-                        });
+                        cfg.ConfigureEndpoints(context);
                     });
                 })
                 .AddMassTransitHostedService()
@@ -160,11 +163,11 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
             var eventBus = app.ApplicationServices.GetRequiredService<BuildingBlocks.EventBus.Abstractions.IEventBus>();
 
             //eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
-            eventBus.Subscribe<GracePeriodConfirmedIntegrationEvent, IIntegrationEventHandler<GracePeriodConfirmedIntegrationEvent>>();
-            eventBus.Subscribe<OrderStockConfirmedIntegrationEvent, IIntegrationEventHandler<OrderStockConfirmedIntegrationEvent>>();
-            eventBus.Subscribe<OrderStockRejectedIntegrationEvent, IIntegrationEventHandler<OrderStockRejectedIntegrationEvent>>();
-            eventBus.Subscribe<OrderPaymentFailedIntegrationEvent, IIntegrationEventHandler<OrderPaymentFailedIntegrationEvent>>();
-            eventBus.Subscribe<OrderPaymentSucceededIntegrationEvent, IIntegrationEventHandler<OrderPaymentSucceededIntegrationEvent>>();
+            eventBus.Subscribe<GracePeriodConfirmedIntegrationEvent, IntegrationEventHandlerBase<GracePeriodConfirmedIntegrationEvent>>();
+            eventBus.Subscribe<OrderStockConfirmedIntegrationEvent, IntegrationEventHandlerBase<OrderStockConfirmedIntegrationEvent>>();
+            eventBus.Subscribe<OrderStockRejectedIntegrationEvent, IntegrationEventHandlerBase<OrderStockRejectedIntegrationEvent>>();
+            eventBus.Subscribe<OrderPaymentFailedIntegrationEvent, IntegrationEventHandlerBase<OrderPaymentFailedIntegrationEvent>>();
+            eventBus.Subscribe<OrderPaymentSucceededIntegrationEvent, IntegrationEventHandlerBase<OrderPaymentSucceededIntegrationEvent>>();
         }
 
         protected virtual void ConfigureAuth(IApplicationBuilder app)

@@ -43,7 +43,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Infrastructure.Autof
                .InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(typeof(CreateOrderCommandHandler).GetTypeInfo().Assembly)
-                .AsClosedTypesOf(typeof(IIntegrationEventHandler<>));
+                .AsClosedTypesOf(typeof(IntegrationEventHandlerBase<>));
 
         }
     }

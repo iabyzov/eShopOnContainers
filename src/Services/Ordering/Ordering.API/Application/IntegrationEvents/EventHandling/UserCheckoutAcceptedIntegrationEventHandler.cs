@@ -14,7 +14,7 @@ using MassTransit;
 
 namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {
-    public class UserCheckoutAcceptedIntegrationEventHandler : IConsumer<UserCheckoutAcceptedIntegrationEvent>
+    public class UserCheckoutAcceptedIntegrationEventHandler : IntegrationEventHandlerBase<UserCheckoutAcceptedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<UserCheckoutAcceptedIntegrationEventHandler> _logger;
@@ -36,9 +36,8 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
         /// order items.
         /// </param>
         /// <returns></returns>
-        public async Task Consume(ConsumeContext<UserCheckoutAcceptedIntegrationEvent> context)
+        public override async Task Handle(UserCheckoutAcceptedIntegrationEvent @event)
         {
-            var @event = context.Message;
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {
                 _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Program.AppName, @event);

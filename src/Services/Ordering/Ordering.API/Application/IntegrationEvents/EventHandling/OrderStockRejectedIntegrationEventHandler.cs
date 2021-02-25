@@ -15,7 +15,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
     using Microsoft.eShopOnContainers.Services.Ordering.API;
     using Ordering.API.Application.Behaviors;
 
-    public class OrderStockRejectedIntegrationEventHandler : IIntegrationEventHandler<OrderStockRejectedIntegrationEvent>
+    public class OrderStockRejectedIntegrationEventHandler : IntegrationEventHandlerBase<OrderStockRejectedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<OrderStockRejectedIntegrationEventHandler> _logger;
@@ -28,7 +28,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderStockRejectedIntegrationEvent @event)
+        public override async Task Handle(OrderStockRejectedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

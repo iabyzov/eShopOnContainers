@@ -16,7 +16,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
     using System.Threading.Tasks;
 
     public class OrderPaymentSucceededIntegrationEventHandler : 
-        IIntegrationEventHandler<OrderPaymentSucceededIntegrationEvent>
+        IntegrationEventHandlerBase<OrderPaymentSucceededIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<OrderPaymentSucceededIntegrationEventHandler> _logger;
@@ -29,7 +29,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderPaymentSucceededIntegrationEvent @event)
+        public override async Task Handle(OrderPaymentSucceededIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

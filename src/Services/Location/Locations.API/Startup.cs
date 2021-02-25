@@ -26,6 +26,7 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using MassTransit;
 
 namespace Microsoft.eShopOnContainers.Services.Locations.API
 {
@@ -101,6 +102,11 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
             }
 
             RegisterEventBus(services);
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+            }));
+            services.AddMassTransitHostedService();
 
             // Add framework services.
             services.AddSwaggerGen(options =>

@@ -10,7 +10,7 @@ using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
 {
-    public class OrderStatusChangedToCancelledIntegrationEventHandler : IIntegrationEventHandler<OrderStatusChangedToCancelledIntegrationEvent>
+    public class OrderStatusChangedToCancelledIntegrationEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToCancelledIntegrationEvent>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
         private readonly ILogger<OrderStatusChangedToCancelledIntegrationEventHandler> _logger;
@@ -24,7 +24,7 @@ namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
         }
 
 
-        public async Task Handle(OrderStatusChangedToCancelledIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToCancelledIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

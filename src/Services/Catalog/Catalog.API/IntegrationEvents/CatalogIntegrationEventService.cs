@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
+using MassTransit;
 
 namespace Catalog.API.IntegrationEvents
 {
@@ -16,6 +17,7 @@ namespace Catalog.API.IntegrationEvents
     {
         private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
         private readonly IEventBus _eventBus;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly CatalogContext _catalogContext;
         private readonly IIntegrationEventLogService _eventLogService;
         private readonly ILogger<CatalogIntegrationEventService> _logger;
@@ -24,6 +26,7 @@ namespace Catalog.API.IntegrationEvents
         public CatalogIntegrationEventService(
             ILogger<CatalogIntegrationEventService> logger,
             IEventBus eventBus,
+            IPublishEndpoint publishEndpoint,
             CatalogContext catalogContext,
             Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory)
         {
@@ -31,6 +34,7 @@ namespace Catalog.API.IntegrationEvents
             _catalogContext = catalogContext ?? throw new ArgumentNullException(nameof(catalogContext));
             _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _publishEndpoint = publishEndpoint;
             _eventLogService = _integrationEventLogServiceFactory(_catalogContext.Database.GetDbConnection());
         }
 
@@ -41,7 +45,8 @@ namespace Catalog.API.IntegrationEvents
                 _logger.LogInformation("----- Publishing integration event: {IntegrationEventId_published} from {AppName} - ({@IntegrationEvent})", evt.Id, Program.AppName, evt);
 
                 await _eventLogService.MarkEventAsInProgressAsync(evt.Id);
-                _eventBus.Publish(evt);
+                await _publishEndpoint.Publish(evt);
+                //_eventBus.Publish(evt);
                 await _eventLogService.MarkEventAsPublishedAsync(evt.Id);
             }
             catch (Exception ex)

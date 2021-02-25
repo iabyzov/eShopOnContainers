@@ -8,7 +8,7 @@ using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
 {
-    public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
+    public class OrderStatusChangedToPaidIntegrationEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToPaidIntegrationEvent>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
         private readonly ILogger<OrderStatusChangedToPaidIntegrationEventHandler> _logger;
@@ -22,7 +22,7 @@ namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
         }
 
 
-        public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

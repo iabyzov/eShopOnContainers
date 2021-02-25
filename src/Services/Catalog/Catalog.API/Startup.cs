@@ -31,6 +31,8 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Reflection;
+using MassTransit;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API
 {
@@ -54,6 +56,15 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 .AddEventBus(Configuration)
                 .AddSwagger(Configuration)
                 .AddCustomHealthCheck(Configuration);
+
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+                x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
+                x.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
+                x.SetKebabCaseEndpointNameFormatter();
+            }));
+            services.AddMassTransitHostedService();
 
             var container = new ContainerBuilder();
             container.Populate(services);

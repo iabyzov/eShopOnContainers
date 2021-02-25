@@ -1,4 +1,5 @@
-﻿using Ordering.API.Application.IntegrationEvents.Events;
+﻿using MassTransit;
+using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Payment.API.IntegrationEvents.EventHandling
 {
@@ -11,25 +12,28 @@ namespace Payment.API.IntegrationEvents.EventHandling
     using System.Threading.Tasks;
 
     public class OrderStatusChangedToStockConfirmedIntegrationEventHandler :
-        IIntegrationEventHandler<OrderStatusChangedToStockConfirmedIntegrationEvent>
+        IntegrationEventHandlerBase<OrderStatusChangedToStockConfirmedIntegrationEvent>
     {
         private readonly IEventBus _eventBus;
         private readonly PaymentSettings _settings;
         private readonly ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> _logger;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public OrderStatusChangedToStockConfirmedIntegrationEventHandler(
             IEventBus eventBus,
             IOptionsSnapshot<PaymentSettings> settings,
-            ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger)
+            ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger,
+            IPublishEndpoint publishEndpoint)
         {
             _eventBus = eventBus;
             _settings = settings.Value;
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+            _publishEndpoint = publishEndpoint;
 
             _logger.LogTrace("PaymentSettings: {@PaymentSettings}", _settings);
         }
 
-        public async Task Handle(OrderStatusChangedToStockConfirmedIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToStockConfirmedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {
@@ -46,15 +50,18 @@ namespace Payment.API.IntegrationEvents.EventHandling
                 if (_settings.PaymentSucceeded)
                 {
                     orderPaymentIntegrationEvent = new OrderPaymentSucceededIntegrationEvent(@event.OrderId);
+                    await _publishEndpoint.Publish(orderPaymentIntegrationEvent);
                 }
                 else
                 {
                     orderPaymentIntegrationEvent = new OrderPaymentFailedIntegrationEvent(@event.OrderId);
+                    await _publishEndpoint.Publish(orderPaymentIntegrationEvent);
                 }
 
                 _logger.LogInformation("----- Publishing integration event: {IntegrationEventId} from {AppName} - ({@IntegrationEvent})", orderPaymentIntegrationEvent.Id, Program.AppName, orderPaymentIntegrationEvent);
 
-                _eventBus.Publish(orderPaymentIntegrationEvent);
+                //_eventBus.Publish(orderPaymentIntegrationEvent);
+                
 
                 await Task.CompletedTask;
             }

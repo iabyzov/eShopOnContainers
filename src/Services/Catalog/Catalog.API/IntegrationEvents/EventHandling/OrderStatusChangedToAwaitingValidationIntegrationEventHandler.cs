@@ -14,7 +14,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
     using System.Threading.Tasks;
 
     public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler : 
-        IIntegrationEventHandler<OrderStatusChangedToAwaitingValidationIntegrationEvent>
+        IntegrationEventHandlerBase<OrderStatusChangedToAwaitingValidationIntegrationEvent>
     {
         private readonly CatalogContext _catalogContext;
         private readonly ICatalogIntegrationEventService _catalogIntegrationEventService;
@@ -30,7 +30,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderStatusChangedToAwaitingValidationIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToAwaitingValidationIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

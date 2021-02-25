@@ -15,10 +15,10 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus
 
         void AddSubscription<T, TH>()
            where T : IntegrationEvent
-           where TH : IIntegrationEventHandler<T>;
+           where TH : IntegrationEventHandlerBase<T>;
 
         void RemoveSubscription<T, TH>()
-             where TH : IIntegrationEventHandler<T>
+             where TH : IntegrationEventHandlerBase<T>
              where T : IntegrationEvent;
         void RemoveDynamicSubscription<TH>(string eventName)
             where TH : IDynamicIntegrationEventHandler;

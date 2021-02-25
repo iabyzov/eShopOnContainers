@@ -10,7 +10,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
     using System.Threading.Tasks;
 
     public class OrderStatusChangedToPaidIntegrationEventHandler : 
-        IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
+        IntegrationEventHandlerBase<OrderStatusChangedToPaidIntegrationEvent>
     {
         private readonly CatalogContext _catalogContext;
         private readonly ILogger<OrderStatusChangedToPaidIntegrationEventHandler> _logger;
@@ -23,7 +23,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

@@ -68,7 +68,7 @@
 
         public void Subscribe<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = typeof(T).Name.Replace(INTEGRATION_EVENT_SUFFIX, "");
 
@@ -96,7 +96,7 @@
 
         public void Unsubscribe<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = typeof(T).Name.Replace(INTEGRATION_EVENT_SUFFIX, "");
 
@@ -180,7 +180,7 @@
                             if (handler == null) continue;
                             var eventType = _subsManager.GetEventTypeByName(eventName);
                             var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
-                            var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+                            var concreteType = typeof(IntegrationEventHandlerBase<>).MakeGenericType(eventType);
                             await (Task)concreteType.GetMethod("Handle").Invoke(handler, new object[] { integrationEvent });
                         }
                     }

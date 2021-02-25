@@ -9,20 +9,23 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using MassTransit;
 
 namespace Ordering.BackgroundTasks.Tasks
 {
     public class GracePeriodManagerService : BackgroundService
     {
         private readonly ILogger<GracePeriodManagerService> _logger;
+        private readonly IPublishEndpoint _publishEndpoint;
         private readonly BackgroundTaskSettings _settings;
         private readonly IEventBus _eventBus;
 
-        public GracePeriodManagerService(IOptions<BackgroundTaskSettings> settings, IEventBus eventBus, ILogger<GracePeriodManagerService> logger)
+        public GracePeriodManagerService(IOptions<BackgroundTaskSettings> settings, IEventBus eventBus, ILogger<GracePeriodManagerService> logger, IPublishEndpoint publishEndpoint)
         {
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _publishEndpoint = publishEndpoint;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,7 +58,8 @@ namespace Ordering.BackgroundTasks.Tasks
 
                 _logger.LogInformation("----- Publishing integration event: {IntegrationEventId} from {AppName} - ({@IntegrationEvent})", confirmGracePeriodEvent.Id, Program.AppName, confirmGracePeriodEvent);
 
-                _eventBus.Publish(confirmGracePeriodEvent);
+                //_eventBus.Publish(confirmGracePeriodEvent);
+                _publishEndpoint.Publish(confirmGracePeriodEvent).Wait();
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Ordering.BackgroundTasks
+﻿using MassTransit;
+
+namespace Ordering.BackgroundTasks
 {
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
@@ -28,6 +30,12 @@
                 .AddOptions()
                 .AddHostedService<GracePeriodManagerService>()
                 .AddEventBus(this.Configuration);
+
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+            }));
+            services.AddMassTransitHostedService();
         }
 
 

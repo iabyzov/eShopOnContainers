@@ -20,6 +20,7 @@ using RabbitMQ.Client;
 using System;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
+using MassTransit;
 using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub
@@ -105,6 +106,22 @@ namespace Ordering.SignalrHub
                 });
             }
 
+            services.AddMassTransit(x =>
+                {
+                    x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
+                    x.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
+                    x.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+                    x.AddConsumer<OrderStatusChangedToShippedIntegrationEventHandler>();
+                    x.AddConsumer<OrderStatusChangedToCancelledIntegrationEventHandler>();
+                    x.AddConsumer<OrderStatusChangedToSubmittedIntegrationEventHandler>();
+                    x.SetKebabCaseEndpointNameFormatter();
+                    x.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host(Configuration["EventBusConnection"]);
+                        cfg.ConfigureEndpoints(context);
+                    });
+                })
+                .AddMassTransitHostedService();
             ConfigureAuthService(services);
 
             RegisterEventBus(services);

@@ -16,6 +16,7 @@ using Payment.API.IntegrationEvents.EventHandling;
 using Payment.API.IntegrationEvents.Events;
 using RabbitMQ.Client;
 using System;
+using MassTransit;
 using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Payment.API
@@ -36,6 +37,14 @@ namespace Payment.API
             services.Configure<PaymentSettings>(Configuration);
 
             RegisterAppInsights(services);
+
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+                x.SetKebabCaseEndpointNameFormatter();
+                x.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+            }));
+            services.AddMassTransitHostedService();
 
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {

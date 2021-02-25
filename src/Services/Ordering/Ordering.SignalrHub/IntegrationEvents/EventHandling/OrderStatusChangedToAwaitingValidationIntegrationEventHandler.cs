@@ -10,7 +10,7 @@ using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub.IntegrationEvents
 {
-    public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler : IIntegrationEventHandler<OrderStatusChangedToAwaitingValidationIntegrationEvent>
+    public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToAwaitingValidationIntegrationEvent>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
         private readonly ILogger<OrderStatusChangedToAwaitingValidationIntegrationEventHandler> _logger;
@@ -24,7 +24,7 @@ namespace Ordering.SignalrHub.IntegrationEvents
         }
 
 
-        public async Task Handle(OrderStatusChangedToAwaitingValidationIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToAwaitingValidationIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

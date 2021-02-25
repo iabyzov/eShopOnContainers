@@ -11,7 +11,7 @@ using Ordering.API.Application.IntegrationEvents.Events;
 namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
 {
     public class OrderStatusChangedToSubmittedIntegrationEventHandler :
-        IIntegrationEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>
+        IntegrationEventHandlerBase<OrderStatusChangedToSubmittedIntegrationEvent>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
         private readonly ILogger<OrderStatusChangedToSubmittedIntegrationEventHandler> _logger;
@@ -25,7 +25,7 @@ namespace Ordering.SignalrHub.IntegrationEvents.EventHandling
         }
 
 
-        public async Task Handle(OrderStatusChangedToSubmittedIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToSubmittedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

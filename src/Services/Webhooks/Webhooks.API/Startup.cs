@@ -26,6 +26,7 @@ using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Threading;
+using MassTransit;
 using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
 using Ordering.API.Application.IntegrationEvents.Events;
 using Webhooks.API.Infrastructure;
@@ -63,6 +64,15 @@ namespace Webhooks.API
                 .AddTransient<IWebhooksRetriever, WebhooksRetriever>()
                 .AddTransient<IWebhooksSender, WebhooksSender>();
 
+            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(Configuration["EventBusConnection"]);
+                x.SetKebabCaseEndpointNameFormatter();
+                x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
+                x.AddConsumer<OrderStatusChangedToShippedIntegrationEventHandler>();
+                x.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
+            }));
+            services.AddMassTransitHostedService();
             var container = new ContainerBuilder();
             container.Populate(services);
             return new AutofacServiceProvider(container.Build());

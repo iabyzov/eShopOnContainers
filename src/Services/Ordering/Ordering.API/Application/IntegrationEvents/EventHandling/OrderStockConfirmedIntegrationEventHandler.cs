@@ -16,7 +16,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
     using Ordering.API.Application.Behaviors;
 
     public class OrderStockConfirmedIntegrationEventHandler :
-        IIntegrationEventHandler<OrderStockConfirmedIntegrationEvent>
+        IntegrationEventHandlerBase<OrderStockConfirmedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<OrderStockConfirmedIntegrationEventHandler> _logger;
@@ -29,7 +29,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderStockConfirmedIntegrationEvent @event)
+        public override async Task Handle(OrderStockConfirmedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

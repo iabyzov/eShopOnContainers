@@ -13,7 +13,7 @@ using Ordering.BackgroundTasks.Events;
 
 namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {
-    public class GracePeriodConfirmedIntegrationEventHandler : IIntegrationEventHandler<GracePeriodConfirmedIntegrationEvent>
+    public class GracePeriodConfirmedIntegrationEventHandler : IntegrationEventHandlerBase<GracePeriodConfirmedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILogger<GracePeriodConfirmedIntegrationEventHandler> _logger;
@@ -34,7 +34,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
         /// <param name="event">       
         /// </param>
         /// <returns></returns>
-        public async Task Handle(GracePeriodConfirmedIntegrationEvent @event)
+        public override async Task Handle(GracePeriodConfirmedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

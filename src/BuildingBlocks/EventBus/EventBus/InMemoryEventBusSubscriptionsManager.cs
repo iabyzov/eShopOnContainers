@@ -32,7 +32,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus
 
         public void AddSubscription<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = GetEventKey<T>();
 
@@ -77,7 +77,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus
 
 
         public void RemoveSubscription<T, TH>()
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
             where T : IntegrationEvent
         {
             var handlerToRemove = FindSubscriptionToRemove<T, TH>();
@@ -128,7 +128,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus
 
         private SubscriptionInfo FindSubscriptionToRemove<T, TH>()
              where T : IntegrationEvent
-             where TH : IIntegrationEventHandler<T>
+             where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = GetEventKey<T>();
             return DoFindSubscriptionToRemove(eventName, typeof(TH));

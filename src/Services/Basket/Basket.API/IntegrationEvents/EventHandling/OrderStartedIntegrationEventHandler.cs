@@ -9,7 +9,7 @@ using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Basket.API.IntegrationEvents.EventHandling
 {
-    public class OrderStartedIntegrationEventHandler : IIntegrationEventHandler<OrderStartedIntegrationEvent>
+    public class OrderStartedIntegrationEventHandler : IntegrationEventHandlerBase<OrderStartedIntegrationEvent>
     {
         private readonly IBasketRepository _repository;
         private readonly ILogger<OrderStartedIntegrationEventHandler> _logger;
@@ -22,7 +22,7 @@ namespace Basket.API.IntegrationEvents.EventHandling
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(OrderStartedIntegrationEvent @event)
+        public override async Task Handle(OrderStartedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

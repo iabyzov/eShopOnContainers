@@ -1,4 +1,7 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Marketing.API
+﻿using MassTransit;
+using Microsoft.eShopOnContainers.Services.Locations.API.IntegrationEvents.Events;
+
+namespace Microsoft.eShopOnContainers.Services.Marketing.API
 {
     using AspNetCore.Builder;
     using AspNetCore.Hosting;
@@ -77,6 +80,19 @@
                 options.ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
                 //Check Client vs. Server evaluation: https://docs.microsoft.com/en-us/ef/core/querying/client-eval
             });
+            services.AddMassTransit(x =>
+                {
+                    x.AddConsumer<UserLocationUpdatedIntegrationEventHandler>();
+
+                    x.SetKebabCaseEndpointNameFormatter();
+                    x.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host(Configuration["EventBusConnection"]);
+                        cfg.ConfigureEndpoints(context);
+
+                    });
+                })
+                .AddMassTransitHostedService();
 
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {

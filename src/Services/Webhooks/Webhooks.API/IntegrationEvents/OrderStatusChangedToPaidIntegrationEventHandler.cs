@@ -8,7 +8,7 @@ using Webhooks.API.Services;
 
 namespace Webhooks.API.IntegrationEvents
 {
-    public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
+    public class OrderStatusChangedToPaidIntegrationEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToPaidIntegrationEvent>
     {
         private readonly IWebhooksRetriever _retriever;
         private readonly IWebhooksSender _sender;
@@ -20,7 +20,7 @@ namespace Webhooks.API.IntegrationEvents
             _logger = logger;
         }
 
-        public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
+        public override async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
         {
             var subscriptions = await _retriever.GetSubscriptionsOfType(WebhookType.OrderPaid);
             _logger.LogInformation("Received OrderStatusChangedToShippedIntegrationEvent and got {SubscriptionsCount} subscriptions to process", subscriptions.Count());

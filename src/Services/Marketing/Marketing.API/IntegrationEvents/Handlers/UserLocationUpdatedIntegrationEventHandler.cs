@@ -12,7 +12,7 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API.IntegrationEvents.H
     using System.Threading.Tasks;
 
     public class UserLocationUpdatedIntegrationEventHandler 
-        : IIntegrationEventHandler<UserLocationUpdatedIntegrationEvent>
+        : IntegrationEventHandlerBase<UserLocationUpdatedIntegrationEvent>
     {
         private readonly IMarketingDataRepository _marketingDataRepository;
         private readonly ILogger<UserLocationUpdatedIntegrationEventHandler> _logger;
@@ -25,7 +25,7 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API.IntegrationEvents.H
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(UserLocationUpdatedIntegrationEvent @event)
+        public override async Task Handle(UserLocationUpdatedIntegrationEvent @event)
         {
             using (LogContext.PushProperty("IntegrationEventContext", $"{@event.Id}-{Program.AppName}"))
             {

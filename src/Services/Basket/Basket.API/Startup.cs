@@ -181,9 +181,12 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
 
             services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
             {
+                x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
+                x.AddConsumer<OrderStartedIntegrationEventHandler>();
+                x.SetKebabCaseEndpointNameFormatter();
                 configurator.Host(Configuration["EventBusConnection"]);
-                //configurator.ReceiveEndpoint("eshop_event_bus", conf => {});
             }));
+                
             services.AddMassTransitHostedService();
 
             services.AddOptions();

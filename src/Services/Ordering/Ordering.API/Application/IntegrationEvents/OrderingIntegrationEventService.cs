@@ -13,6 +13,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using MassTransit;
 
 namespace Ordering.API.Application.IntegrationEvents
 {
@@ -23,18 +24,21 @@ namespace Ordering.API.Application.IntegrationEvents
         private readonly OrderingContext _orderingContext;
         private readonly IIntegrationEventLogService _eventLogService;
         private readonly ILogger<OrderingIntegrationEventService> _logger;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public OrderingIntegrationEventService(IEventBus eventBus,
             OrderingContext orderingContext,
             IntegrationEventLogContext eventLogContext,
             Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
-            ILogger<OrderingIntegrationEventService> logger)
+            ILogger<OrderingIntegrationEventService> logger,
+            IPublishEndpoint publishEndpoint)
         {
             _orderingContext = orderingContext ?? throw new ArgumentNullException(nameof(orderingContext));
             _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task PublishEventsThroughEventBusAsync(Guid transactionId)
@@ -48,7 +52,8 @@ namespace Ordering.API.Application.IntegrationEvents
                 try
                 {
                     await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
-                    _eventBus.Publish(logEvt.IntegrationEvent);
+                    //_eventBus.Publish(logEvt.IntegrationEvent);
+                    await _publishEndpoint.Publish(logEvt.IntegrationEvent);
                     await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
                 }
                 catch (Exception ex)

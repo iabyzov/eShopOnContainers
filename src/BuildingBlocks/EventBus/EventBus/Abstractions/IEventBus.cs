@@ -9,7 +9,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions
 
         void Subscribe<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>;
+            where TH : IntegrationEventHandlerBase<T>;
 
         void SubscribeDynamic<TH>(string eventName)
             where TH : IDynamicIntegrationEventHandler;
@@ -18,7 +18,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions
             where TH : IDynamicIntegrationEventHandler;
 
         void Unsubscribe<T, TH>()
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
             where T : IntegrationEvent;
     }
 }

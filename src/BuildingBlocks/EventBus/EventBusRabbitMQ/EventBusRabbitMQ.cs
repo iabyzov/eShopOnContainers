@@ -122,7 +122,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ
 
         public void Subscribe<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = _subsManager.GetEventKey<T>();
             DoInternalSubscription(eventName);
@@ -154,7 +154,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ
 
         public void Unsubscribe<T, TH>()
             where T : IntegrationEvent
-            where TH : IIntegrationEventHandler<T>
+            where TH : IntegrationEventHandlerBase<T>
         {
             var eventName = _subsManager.GetEventKey<T>();
 
@@ -283,7 +283,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ
                             if (handler == null) continue;
                             var eventType = _subsManager.GetEventTypeByName(eventName);
                             var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
-                            var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+                            var concreteType = typeof(IntegrationEventHandlerBase<>).MakeGenericType(eventType);
 
                             await Task.Yield();
                             await (Task)concreteType.GetMethod("Handle").Invoke(handler, new object[] { integrationEvent });
