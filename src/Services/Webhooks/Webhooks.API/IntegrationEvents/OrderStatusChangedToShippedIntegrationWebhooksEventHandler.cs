@@ -8,12 +8,12 @@ using Webhooks.API.Services;
 
 namespace Webhooks.API.IntegrationEvents
 {
-    public class OrderStatusChangedToShippedIntegrationEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToShippedIntegrationEvent>
+    public class OrderStatusChangedToShippedIntegrationWebhooksEventHandler : IntegrationEventHandlerBase<OrderStatusChangedToShippedIntegrationEvent>
     {
         private readonly IWebhooksRetriever _retriever;
         private readonly IWebhooksSender _sender;
         private readonly ILogger _logger;
-        public OrderStatusChangedToShippedIntegrationEventHandler(IWebhooksRetriever retriever, IWebhooksSender sender, ILogger<OrderStatusChangedToShippedIntegrationEventHandler> logger )
+        public OrderStatusChangedToShippedIntegrationWebhooksEventHandler(IWebhooksRetriever retriever, IWebhooksSender sender, ILogger<OrderStatusChangedToShippedIntegrationWebhooksEventHandler> logger )
         {
             _retriever = retriever;
             _sender = sender;

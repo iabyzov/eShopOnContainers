@@ -16,18 +16,15 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API.Infrastructure.Serv
     public class LocationsService : ILocationsService
     {
         private readonly ILocationsRepository _locationsRepository;
-        private readonly IEventBus _eventBus;
         private readonly ILogger<LocationsService> _logger;
         private readonly IPublishEndpoint _publishEndpoint;
 
         public LocationsService(
             ILocationsRepository locationsRepository,
-            IEventBus eventBus,
             ILogger<LocationsService> logger,
             IPublishEndpoint publishEndpoint)
         {
             _locationsRepository = locationsRepository ?? throw new ArgumentNullException(nameof(locationsRepository));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _publishEndpoint = publishEndpoint;
         }

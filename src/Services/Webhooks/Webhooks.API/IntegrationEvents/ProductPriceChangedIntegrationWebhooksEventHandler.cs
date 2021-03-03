@@ -4,7 +4,7 @@ using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
 
 namespace Webhooks.API.IntegrationEvents
 {
-    public class ProductPriceChangedIntegrationEventHandler : IntegrationEventHandlerBase<ProductPriceChangedIntegrationEvent>
+    public class ProductPriceChangedIntegrationWebhooksEventHandler : IntegrationEventHandlerBase<ProductPriceChangedIntegrationEvent>
     {
         public override async Task Handle(ProductPriceChangedIntegrationEvent @event)
         {

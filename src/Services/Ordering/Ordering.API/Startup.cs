@@ -86,7 +86,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                     });
                 })
                 .AddMassTransitHostedService()
-                .AddEventBus(Configuration)
+                //.AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration);
             //configure autofac
 
@@ -154,7 +154,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                 });
             });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
 
@@ -323,7 +323,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
 
             services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -366,7 +366,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
             return services;
         }

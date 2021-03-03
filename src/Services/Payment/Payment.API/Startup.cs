@@ -38,15 +38,19 @@ namespace Payment.API
 
             RegisterAppInsights(services);
 
-            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            services.AddMassTransit(x => 
             {
-                configurator.Host(Configuration["EventBusConnection"]);
+                x.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
-            }));
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusConnection"]);
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
             services.AddMassTransitHostedService();
 
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -87,9 +91,9 @@ namespace Payment.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
-            RegisterEventBus(services);
+            //RegisterEventBus(services);
 
             var container = new ContainerBuilder();
             container.Populate(services);
@@ -108,7 +112,7 @@ namespace Payment.API
                 app.UsePathBase(pathBase);
             }
 
-            ConfigureEventBus(app);
+//            ConfigureEventBus(app);
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
@@ -167,14 +171,14 @@ namespace Payment.API
                 });
             }
 
-            services.AddTransient<OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+            services.AddTransient<OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler>();
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
         }
 
         private void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<OrderStatusChangedToStockConfirmedIntegrationEvent, OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+            eventBus.Subscribe<OrderStatusChangedToStockConfirmedIntegrationEvent, OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler>();
         }
     }
 

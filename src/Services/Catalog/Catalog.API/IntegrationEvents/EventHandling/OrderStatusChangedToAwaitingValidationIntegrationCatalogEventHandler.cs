@@ -13,17 +13,17 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler : 
+    public class OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler : 
         IntegrationEventHandlerBase<OrderStatusChangedToAwaitingValidationIntegrationEvent>
     {
         private readonly CatalogContext _catalogContext;
         private readonly ICatalogIntegrationEventService _catalogIntegrationEventService;
-        private readonly ILogger<OrderStatusChangedToAwaitingValidationIntegrationEventHandler> _logger;
+        private readonly ILogger<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler> _logger;
 
-        public OrderStatusChangedToAwaitingValidationIntegrationEventHandler(
+        public OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler(
             CatalogContext catalogContext,
             ICatalogIntegrationEventService catalogIntegrationEventService,
-            ILogger<OrderStatusChangedToAwaitingValidationIntegrationEventHandler> logger)
+            ILogger<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler> logger)
         {
             _catalogContext = catalogContext;
             _catalogIntegrationEventService = catalogIntegrationEventService;

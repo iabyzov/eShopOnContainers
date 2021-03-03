@@ -28,8 +28,8 @@ namespace Ordering.BackgroundTasks
             services.AddCustomHealthCheck(this.Configuration)
                 .Configure<BackgroundTaskSettings>(this.Configuration)
                 .AddOptions()
-                .AddHostedService<GracePeriodManagerService>()
-                .AddEventBus(this.Configuration);
+                .AddHostedService<GracePeriodManagerService>();
+                //.AddEventBus(this.Configuration);
 
             services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
             {

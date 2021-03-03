@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MassTransit;
 using Xunit;
 using IBasketIdentityService = Microsoft.eShopOnContainers.Services.Basket.API.Services.IIdentityService;
 
@@ -22,6 +23,7 @@ namespace UnitTest.Basket.Application
         private readonly Mock<IBasketIdentityService> _identityServiceMock;
         private readonly Mock<IEventBus> _serviceBusMock;
         private readonly Mock<ILogger<BasketController>> _loggerMock;
+        private readonly Mock<IPublishEndpoint> _publishEndpointMock;
 
         public BasketWebApiTest()
         {
@@ -29,6 +31,7 @@ namespace UnitTest.Basket.Application
             _identityServiceMock = new Mock<IBasketIdentityService>();
             _serviceBusMock = new Mock<IEventBus>();
             _loggerMock = new Mock<ILogger<BasketController>>();
+            _publishEndpointMock = new Mock<IPublishEndpoint>();
         }
 
         [Fact]
@@ -49,7 +52,7 @@ namespace UnitTest.Basket.Application
                 _loggerMock.Object,
                 _basketRepositoryMock.Object,
                 _identityServiceMock.Object,
-                _serviceBusMock.Object);
+                _publishEndpointMock.Object);
 
             var actionResult = await basketController.GetBasketByIdAsync(fakeCustomerId);
 
@@ -75,7 +78,7 @@ namespace UnitTest.Basket.Application
                 _loggerMock.Object,
                 _basketRepositoryMock.Object,
                 _identityServiceMock.Object,
-                _serviceBusMock.Object);
+                _publishEndpointMock.Object);
 
             var actionResult = await basketController.UpdateBasketAsync(fakeCustomerBasket);
 
@@ -97,7 +100,7 @@ namespace UnitTest.Basket.Application
                 _loggerMock.Object,
                 _basketRepositoryMock.Object,
                 _identityServiceMock.Object,
-                _serviceBusMock.Object);
+                _publishEndpointMock.Object);
 
             var result = await basketController.CheckoutAsync(new BasketCheckout(), Guid.NewGuid().ToString()) as BadRequestResult;
             Assert.NotNull(result);
@@ -118,7 +121,7 @@ namespace UnitTest.Basket.Application
                 _loggerMock.Object,
                 _basketRepositoryMock.Object,
                 _identityServiceMock.Object,
-                _serviceBusMock.Object);
+                _publishEndpointMock.Object);
 
             basketController.ControllerContext = new ControllerContext()
             {

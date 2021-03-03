@@ -89,12 +89,11 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
                         cfg.ConfigureEndpoints(context);
-
                     });
                 })
                 .AddMassTransitHostedService();
 
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -136,7 +135,7 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
             // Add framework services.
 
@@ -151,7 +150,7 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API
                     .AllowCredentials());
             });
 
-            RegisterEventBus(services);
+            //RegisterEventBus(services);
 
             services.AddTransient<IMarketingDataRepository, MarketingDataRepository>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -206,7 +205,7 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API
                    setup.OAuthAppName("Marketing Swagger UI");
                });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
         private void AddCustomSwagger(IServiceCollection services)

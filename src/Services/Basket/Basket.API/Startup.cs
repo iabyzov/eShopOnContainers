@@ -119,7 +119,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             });
 
 
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -164,7 +164,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             }
 
             RegisterEventBus(services);
-
+            */
 
             services.AddCors(options =>
             {
@@ -179,13 +179,16 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             services.AddTransient<IBasketRepository, RedisBasketRepository>();
             services.AddTransient<IIdentityService, IdentityService>();
 
-            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
-            {
+            services.AddMassTransit(x => { 
                 x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
                 x.AddConsumer<OrderStartedIntegrationEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                configurator.Host(Configuration["EventBusConnection"]);
-            }));
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusConnection"]);
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
                 
             services.AddMassTransitHostedService();
 
@@ -253,7 +256,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                 });
             });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
         private void RegisterAppInsights(IServiceCollection services)

@@ -53,17 +53,21 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 .AddCustomDbContext(Configuration)
                 .AddCustomOptions(Configuration)
                 .AddIntegrationServices(Configuration)
-                .AddEventBus(Configuration)
+                //.AddEventBus(Configuration)
                 .AddSwagger(Configuration)
                 .AddCustomHealthCheck(Configuration);
 
-            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            services.AddMassTransit(x => 
             {
-                configurator.Host(Configuration["EventBusConnection"]);
-                x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
-                x.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
+                x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
+                x.AddConsumer<OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-            }));
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusConnection"]);
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
             services.AddMassTransitHostedService();
 
             var container = new ContainerBuilder();
@@ -125,14 +129,14 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 });
             });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
         protected virtual void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<OrderStatusChangedToAwaitingValidationIntegrationEvent, OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationEventHandler>();
+            eventBus.Subscribe<OrderStatusChangedToAwaitingValidationIntegrationEvent, OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
+            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
         }
     }
 
@@ -286,7 +290,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
 
             services.AddTransient<ICatalogIntegrationEventService, CatalogIntegrationEventService>();
 
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -329,7 +333,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
             return services;
         }
@@ -372,8 +376,8 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
             }
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-            services.AddTransient<OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
-            services.AddTransient<OrderStatusChangedToPaidIntegrationEventHandler>();
+            services.AddTransient<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
+            services.AddTransient<OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
 
             return services;
         }

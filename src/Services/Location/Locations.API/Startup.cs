@@ -57,7 +57,7 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
 
             services.Configure<LocationSettings>(Configuration);
 
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -99,9 +99,9 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
-            RegisterEventBus(services);
+            //RegisterEventBus(services);
             services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
             {
                 configurator.Host(Configuration["EventBusConnection"]);

@@ -56,7 +56,7 @@ namespace Webhooks.API
                 .AddDevspaces()
                 .AddHttpClientServices(Configuration)
                 .AddIntegrationServices(Configuration)
-                .AddEventBus(Configuration)
+                //.AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration)
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddTransient<IIdentityService, IdentityService>()
@@ -64,15 +64,19 @@ namespace Webhooks.API
                 .AddTransient<IWebhooksRetriever, WebhooksRetriever>()
                 .AddTransient<IWebhooksSender, WebhooksSender>();
 
-            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
-            {
-                configurator.Host(Configuration["EventBusConnection"]);
-                x.SetKebabCaseEndpointNameFormatter();
-                x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
-                x.AddConsumer<OrderStatusChangedToShippedIntegrationEventHandler>();
-                x.AddConsumer<OrderStatusChangedToPaidIntegrationEventHandler>();
-            }));
             services.AddMassTransitHostedService();
+            services.AddMassTransit(x => 
+            {
+                x.AddConsumer<ProductPriceChangedIntegrationWebhooksEventHandler>();
+                x.AddConsumer<OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
+                x.AddConsumer<OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
+                x.SetKebabCaseEndpointNameFormatter();
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(Configuration["EventBusConnection"]);
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
             var container = new ContainerBuilder();
             container.Populate(services);
             return new AutofacServiceProvider(container.Build());
@@ -119,7 +123,7 @@ namespace Webhooks.API
                   c.OAuthAppName("WebHooks Service Swagger UI");
               });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
         protected virtual void ConfigureAuth(IApplicationBuilder app)
@@ -138,9 +142,9 @@ namespace Webhooks.API
         protected virtual void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<ProductPriceChangedIntegrationEvent, ProductPriceChangedIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToShippedIntegrationEvent, OrderStatusChangedToShippedIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationEventHandler>();
+            eventBus.Subscribe<ProductPriceChangedIntegrationEvent, ProductPriceChangedIntegrationWebhooksEventHandler>();
+            eventBus.Subscribe<OrderStatusChangedToShippedIntegrationEvent, OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
+            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
         }
     }
 
@@ -268,9 +272,9 @@ namespace Webhooks.API
             }
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-            services.AddTransient<ProductPriceChangedIntegrationEventHandler>();
-            services.AddTransient<OrderStatusChangedToShippedIntegrationEventHandler>();
-            services.AddTransient<OrderStatusChangedToPaidIntegrationEventHandler>();
+            services.AddTransient<ProductPriceChangedIntegrationWebhooksEventHandler>();
+            services.AddTransient<OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
+            services.AddTransient<OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
             return services;
         }
 
@@ -307,7 +311,7 @@ namespace Webhooks.API
             services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(
                 sp => (DbConnection c) => new IntegrationEventLogService(c));
 
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -346,7 +350,7 @@ namespace Webhooks.API
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
             return services;
         }

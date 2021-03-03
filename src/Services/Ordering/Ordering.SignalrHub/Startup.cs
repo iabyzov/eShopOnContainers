@@ -61,7 +61,7 @@ namespace Ordering.SignalrHub
                 services.AddSignalR();
             }
 
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            /*if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
@@ -104,7 +104,7 @@ namespace Ordering.SignalrHub
 
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
-            }
+            }*/
 
             services.AddMassTransit(x =>
                 {
@@ -124,7 +124,7 @@ namespace Ordering.SignalrHub
                 .AddMassTransitHostedService();
             ConfigureAuthService(services);
 
-            RegisterEventBus(services);
+            //RegisterEventBus(services);
 
             services.AddOptions();
 
@@ -171,7 +171,7 @@ namespace Ordering.SignalrHub
                 endpoints.MapHub<NotificationsHub>("/hub/notificationhub");
             });
 
-            ConfigureEventBus(app);
+            //ConfigureEventBus(app);
         }
 
         private void ConfigureEventBus(IApplicationBuilder app)

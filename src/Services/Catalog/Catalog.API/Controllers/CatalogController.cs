@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
 {

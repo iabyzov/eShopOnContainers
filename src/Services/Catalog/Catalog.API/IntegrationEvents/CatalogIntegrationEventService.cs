@@ -10,13 +10,13 @@ using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using MassTransit;
+using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
 
 namespace Catalog.API.IntegrationEvents
 {
     public class CatalogIntegrationEventService : ICatalogIntegrationEventService,IDisposable
     {
         private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
-        private readonly IEventBus _eventBus;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly CatalogContext _catalogContext;
         private readonly IIntegrationEventLogService _eventLogService;
@@ -25,7 +25,6 @@ namespace Catalog.API.IntegrationEvents
 
         public CatalogIntegrationEventService(
             ILogger<CatalogIntegrationEventService> logger,
-            IEventBus eventBus,
             IPublishEndpoint publishEndpoint,
             CatalogContext catalogContext,
             Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory)
@@ -33,9 +32,26 @@ namespace Catalog.API.IntegrationEvents
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _catalogContext = catalogContext ?? throw new ArgumentNullException(nameof(catalogContext));
             _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _publishEndpoint = publishEndpoint;
             _eventLogService = _integrationEventLogServiceFactory(_catalogContext.Database.GetDbConnection());
+        }
+
+        public async Task PublishThroughEventBusAsync(ProductPriceChangedIntegrationEvent evt)
+        {
+            try
+            {
+                _logger.LogInformation("----- Publishing integration event: {IntegrationEventId_published} from {AppName} - ({@IntegrationEvent})", evt.Id, Program.AppName, evt);
+
+                await _eventLogService.MarkEventAsInProgressAsync(evt.Id);
+                await _publishEndpoint.Publish(evt);
+                //_eventBus.Publish(evt);
+                await _eventLogService.MarkEventAsPublishedAsync(evt.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ERROR Publishing integration event: {IntegrationEventId} from {AppName} - ({@IntegrationEvent})", evt.Id, Program.AppName, evt);
+                await _eventLogService.MarkEventAsFailedAsync(evt.Id);
+            }
         }
 
         public async Task PublishThroughEventBusAsync(IntegrationEvent evt)

@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,12 +17,10 @@ namespace Ordering.BackgroundTasks.Tasks
         private readonly ILogger<GracePeriodManagerService> _logger;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly BackgroundTaskSettings _settings;
-        private readonly IEventBus _eventBus;
 
-        public GracePeriodManagerService(IOptions<BackgroundTaskSettings> settings, IEventBus eventBus, ILogger<GracePeriodManagerService> logger, IPublishEndpoint publishEndpoint)
+        public GracePeriodManagerService(IOptions<BackgroundTaskSettings> settings, ILogger<GracePeriodManagerService> logger, IPublishEndpoint publishEndpoint)
         {
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _publishEndpoint = publishEndpoint;
         }

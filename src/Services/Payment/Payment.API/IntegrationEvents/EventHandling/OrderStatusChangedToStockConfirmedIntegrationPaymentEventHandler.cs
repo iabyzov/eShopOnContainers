@@ -11,21 +11,18 @@ namespace Payment.API.IntegrationEvents.EventHandling
     using Serilog.Context;
     using System.Threading.Tasks;
 
-    public class OrderStatusChangedToStockConfirmedIntegrationEventHandler :
+    public class OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler :
         IntegrationEventHandlerBase<OrderStatusChangedToStockConfirmedIntegrationEvent>
     {
-        private readonly IEventBus _eventBus;
         private readonly PaymentSettings _settings;
-        private readonly ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> _logger;
+        private readonly ILogger<OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler> _logger;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderStatusChangedToStockConfirmedIntegrationEventHandler(
-            IEventBus eventBus,
+        public OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler(
             IOptionsSnapshot<PaymentSettings> settings,
-            ILogger<OrderStatusChangedToStockConfirmedIntegrationEventHandler> logger,
+            ILogger<OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler> logger,
             IPublishEndpoint publishEndpoint)
         {
-            _eventBus = eventBus;
             _settings = settings.Value;
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
             _publishEndpoint = publishEndpoint;

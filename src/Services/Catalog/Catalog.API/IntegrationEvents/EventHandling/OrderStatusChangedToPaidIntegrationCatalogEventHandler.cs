@@ -9,15 +9,15 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Eve
     using Serilog.Context;
     using System.Threading.Tasks;
 
-    public class OrderStatusChangedToPaidIntegrationEventHandler : 
+    public class OrderStatusChangedToPaidIntegrationCatalogEventHandler : 
         IntegrationEventHandlerBase<OrderStatusChangedToPaidIntegrationEvent>
     {
         private readonly CatalogContext _catalogContext;
-        private readonly ILogger<OrderStatusChangedToPaidIntegrationEventHandler> _logger;
+        private readonly ILogger<OrderStatusChangedToPaidIntegrationCatalogEventHandler> _logger;
 
-        public OrderStatusChangedToPaidIntegrationEventHandler(
+        public OrderStatusChangedToPaidIntegrationCatalogEventHandler(
             CatalogContext catalogContext,
-            ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger)
+            ILogger<OrderStatusChangedToPaidIntegrationCatalogEventHandler> logger)
         {
             _catalogContext = catalogContext;
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
