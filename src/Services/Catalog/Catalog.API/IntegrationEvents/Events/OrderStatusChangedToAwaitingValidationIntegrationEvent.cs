@@ -4,7 +4,7 @@ namespace Ordering.API.Application.IntegrationEvents.Events
 {
     using System.Collections.Generic;
 
-    public class OrderStatusChangedToAwaitingValidationIntegrationEvent : IntegrationEvent
+    public record OrderStatusChangedToAwaitingValidationIntegrationEvent : IntegrationEvent
     {
         public int OrderId { get; }
         public IEnumerable<OrderStockItem> OrderStockItems { get; }
@@ -17,7 +17,7 @@ namespace Ordering.API.Application.IntegrationEvents.Events
         }
     }
 
-    public class OrderStockItem
+    public record OrderStockItem
     {
         public int ProductId { get; }
         public int Units { get; }

@@ -18,9 +18,9 @@ using Ordering.SignalrHub.IntegrationEvents;
 using Ordering.SignalrHub.IntegrationEvents.EventHandling;
 using RabbitMQ.Client;
 using System;
-using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using MassTransit;
+using System.Threading.Tasks;
 using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub
@@ -54,7 +54,7 @@ namespace Ordering.SignalrHub
             {
                 services
                     .AddSignalR()
-                    .AddRedis(Configuration["SignalrStoreConnectionString"]);
+                    .AddStackExchangeRedis(Configuration["SignalrStoreConnectionString"]);
             }
             else
             {
@@ -65,12 +65,12 @@ namespace Ordering.SignalrHub
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
                 {
-                    var logger = sp.GetRequiredService<ILogger<DefaultServiceBusPersisterConnection>>();
-
                     var serviceBusConnectionString = Configuration["EventBusConnection"];
                     var serviceBusConnection = new ServiceBusConnectionStringBuilder(serviceBusConnectionString);
 
-                    return new DefaultServiceBusPersisterConnection(serviceBusConnection, logger);
+                    var subscriptionClientName = Configuration["SubscriptionClientName"];
+
+                    return new DefaultServiceBusPersisterConnection(serviceBusConnection, subscriptionClientName);
                 });
             }
             else
@@ -222,8 +222,6 @@ namespace Ordering.SignalrHub
 
         private void RegisterEventBus(IServiceCollection services)
         {
-            var subscriptionClientName = Configuration["SubscriptionClientName"];
-
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
@@ -234,13 +232,14 @@ namespace Ordering.SignalrHub
                     var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
 
                     return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, subscriptionClientName, iLifetimeScope);
+                        eventBusSubcriptionsManager, iLifetimeScope);
                 });
             }
             else
             {
                 services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
                 {
+                    var subscriptionClientName = Configuration["SubscriptionClientName"];
                     var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
                     var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                     var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();

@@ -2,7 +2,7 @@
 
 namespace Ordering.API.Application.IntegrationEvents.Events
 {
-    public class OrderStatusChangedToStockConfirmedIntegrationEvent : IntegrationEvent
+    public record OrderStatusChangedToStockConfirmedIntegrationEvent : IntegrationEvent
     {
         public int OrderId { get; }
         public string OrderStatus { get; }

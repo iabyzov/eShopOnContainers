@@ -4,7 +4,7 @@ using System;
 
 namespace Basket.API.IntegrationEvents.Events
 {
-    public class UserCheckoutAcceptedIntegrationEvent : IntegrationEvent
+    public record UserCheckoutAcceptedIntegrationEvent : IntegrationEvent
     {
         public string UserId { get; }
 
