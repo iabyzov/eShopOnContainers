@@ -28,7 +28,7 @@ namespace Ordering.BackgroundTasks
                 .AddHostedService<GracePeriodManagerService>();
                 //.AddEventBus(this.Configuration);
 
-            services.AddMassTransit(x => x.UsingRabbitMq((context, configurator) =>
+            services.AddMassTransit(x => x.UsingAzureServiceBus((context, configurator) =>
             {
                 configurator.Host(Configuration["EventBusConnection"]);
             }));

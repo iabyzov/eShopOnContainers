@@ -8,10 +8,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
 using Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,8 +22,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Threading;
 using MassTransit;
-using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
-using Ordering.API.Application.IntegrationEvents.Events;
 using Webhooks.API.Infrastructure;
 using Webhooks.API.IntegrationEvents;
 using Webhooks.API.Services;
@@ -70,7 +64,7 @@ namespace Webhooks.API
                 x.AddConsumer<OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
                 x.AddConsumer<OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingRabbitMq((context, cfg) =>
+                x.UsingAzureServiceBus((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);
@@ -121,22 +115,12 @@ namespace Webhooks.API
                   c.OAuthClientId("webhooksswaggerui");
                   c.OAuthAppName("WebHooks Service Swagger UI");
               });
-
-            //ConfigureEventBus(app);
         }
 
         protected virtual void ConfigureAuth(IApplicationBuilder app)
         {
             app.UseAuthentication();
             app.UseAuthorization();
-        }
-
-        protected virtual void ConfigureEventBus(IApplicationBuilder app)
-        {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<ProductPriceChangedIntegrationEvent, ProductPriceChangedIntegrationWebhooksEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToShippedIntegrationEvent, OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
         }
     }
 
@@ -219,48 +203,6 @@ namespace Webhooks.API
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
-            return services;
-        }
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
-        {
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
-            {
-                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
-                {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, iLifetimeScope);
-                });
-
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var subscriptionClientName = configuration["SubscriptionClientName"];
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
-
-            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-            services.AddTransient<ProductPriceChangedIntegrationWebhooksEventHandler>();
-            services.AddTransient<OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
-            services.AddTransient<OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
             return services;
         }
 

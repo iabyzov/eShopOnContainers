@@ -11,10 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
 using Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF;
 using Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF.Services;
 using Microsoft.eShopOnContainers.Services.Catalog.API.Infrastructure;
@@ -32,7 +28,6 @@ using System.Data.Common;
 using System.IO;
 using System.Reflection;
 using MassTransit;
-using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API
 {
@@ -62,7 +57,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
                 x.AddConsumer<OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingRabbitMq((context, cfg) =>
+                x.UsingAzureServiceBus((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);
@@ -128,15 +123,6 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                     Predicate = r => r.Name.Contains("self")
                 });
             });
-
-            //ConfigureEventBus(app);
-        }
-
-        protected virtual void ConfigureEventBus(IApplicationBuilder app)
-        {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<OrderStatusChangedToAwaitingValidationIntegrationEvent, OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
         }
     }
 
@@ -333,49 +319,6 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                     return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
                 });
             }*/
-
-            return services;
-        }
-
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
-        {
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
-            {
-                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
-                {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, iLifetimeScope);
-                });
-
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var subscriptionClientName = configuration["SubscriptionClientName"];
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
-
-            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-            services.AddTransient<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
-            services.AddTransient<OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
 
             return services;
         }

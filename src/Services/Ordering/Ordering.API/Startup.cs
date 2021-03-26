@@ -1,8 +1,5 @@
 ﻿using MassTransit;
-using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
 using Ordering.API.Application.IntegrationEvents.EventHandling;
-using Ordering.BackgroundTasks.Events;
-using Payment.API.IntegrationEvents.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Ordering.API
 {
@@ -23,10 +20,6 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.ServiceBus;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.eShopOnContainers.BuildingBlocks.EventBus;
-    using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
-    using Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
-    using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
     using Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF;
     using Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF.Services;
     using Microsoft.eShopOnContainers.Services.Ordering.API.Controllers;
@@ -78,7 +71,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                     x.AddConsumer<GracePeriodConfirmedIntegrationEventHandler>();
                     
                     x.SetKebabCaseEndpointNameFormatter();
-                    x.UsingRabbitMq((context, cfg) =>
+                    x.UsingAzureServiceBus((context, cfg) =>
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
                         cfg.ConfigureEndpoints(context);
@@ -152,22 +145,8 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                     Predicate = r => r.Name.Contains("self")
                 });
             });
-
-            //ConfigureEventBus(app);
         }
 
-
-        private void ConfigureEventBus(IApplicationBuilder app)
-        {
-            var eventBus = app.ApplicationServices.GetRequiredService<BuildingBlocks.EventBus.Abstractions.IEventBus>();
-
-            //eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
-            eventBus.Subscribe<GracePeriodConfirmedIntegrationEvent, IntegrationEventHandlerBase<GracePeriodConfirmedIntegrationEvent>>();
-            eventBus.Subscribe<OrderStockConfirmedIntegrationEvent, IntegrationEventHandlerBase<OrderStockConfirmedIntegrationEvent>>();
-            eventBus.Subscribe<OrderStockRejectedIntegrationEvent, IntegrationEventHandlerBase<OrderStockRejectedIntegrationEvent>>();
-            eventBus.Subscribe<OrderPaymentFailedIntegrationEvent, IntegrationEventHandlerBase<OrderPaymentFailedIntegrationEvent>>();
-            eventBus.Subscribe<OrderPaymentSucceededIntegrationEvent, IntegrationEventHandlerBase<OrderPaymentSucceededIntegrationEvent>>();
-        }
 
         protected virtual void ConfigureAuth(IApplicationBuilder app)
         {
@@ -384,46 +363,6 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                     };
                 };
             });
-
-            return services;
-        }
-
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
-        {
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
-            {
-                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
-                {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, iLifetimeScope);
-                });
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var subscriptionClientName = configuration["SubscriptionClientName"];
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
-
-            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
 
             return services;
         }

@@ -5,10 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -21,7 +17,6 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using MassTransit;
 using System.Threading.Tasks;
-using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Ordering.SignalrHub
 {
@@ -115,7 +110,7 @@ namespace Ordering.SignalrHub
                     x.AddConsumer<OrderStatusChangedToCancelledIntegrationEventHandler>();
                     x.AddConsumer<OrderStatusChangedToSubmittedIntegrationEventHandler>();
                     x.SetKebabCaseEndpointNameFormatter();
-                    x.UsingRabbitMq((context, cfg) =>
+                    x.UsingAzureServiceBus((context, cfg) =>
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
                         cfg.ConfigureEndpoints(context);
@@ -170,20 +165,6 @@ namespace Ordering.SignalrHub
                 });
                 endpoints.MapHub<NotificationsHub>("/hub/notificationhub");
             });
-
-            //ConfigureEventBus(app);
-        }
-
-        private void ConfigureEventBus(IApplicationBuilder app)
-        {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
-            eventBus.Subscribe<OrderStatusChangedToAwaitingValidationIntegrationEvent, OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToPaidIntegrationEvent, OrderStatusChangedToPaidIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToStockConfirmedIntegrationEvent, OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToShippedIntegrationEvent, OrderStatusChangedToShippedIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToCancelledIntegrationEvent, OrderStatusChangedToCancelledIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStatusChangedToSubmittedIntegrationEvent, OrderStatusChangedToSubmittedIntegrationEventHandler>();
         }
 
         private void ConfigureAuthService(IServiceCollection services)
@@ -218,44 +199,6 @@ namespace Ordering.SignalrHub
                     }
                 };
             });
-        }
-
-        private void RegisterEventBus(IServiceCollection services)
-        {
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
-            {
-                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
-                {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, iLifetimeScope);
-                });
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var subscriptionClientName = Configuration["SubscriptionClientName"];
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(Configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
-
-            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
         }
     }
 

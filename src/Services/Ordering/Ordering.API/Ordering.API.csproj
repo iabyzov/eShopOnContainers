@@ -27,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBusRabbitMQ\EventBusRabbitMQ.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBusServiceBus\EventBusServiceBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\EventBus\EventBus.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\EventBus\IntegrationEventLogEF\IntegrationEventLogEF.csproj" />   
     <ProjectReference Include="..\..\..\BuildingBlocks\WebHostCustomization\WebHost.Customization\WebHost.Customization.csproj" />
@@ -51,6 +49,7 @@
     <PackageReference Include="MassTransit.AspNetCore" Version="7.1.2" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.1.2" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.1.2" />
+    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="7.1.2" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.16.0" />

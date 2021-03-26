@@ -10,10 +10,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
 using Microsoft.eShopOnContainers.Services.Basket.API.Controllers;
 using Microsoft.eShopOnContainers.Services.Basket.API.Infrastructure.Repositories;
 using Microsoft.eShopOnContainers.Services.Basket.API.IntegrationEvents.EventHandling;
@@ -32,8 +28,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using MassTransit;
-using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
-using Ordering.API.Application.IntegrationEvents.Events;
 
 namespace Microsoft.eShopOnContainers.Services.Basket.API
 {
@@ -181,7 +175,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                 x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
                 x.AddConsumer<OrderStartedIntegrationEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingRabbitMq((context, cfg) =>
+                x.UsingAzureServiceBus((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);
@@ -287,55 +281,6 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
         {
             app.UseAuthentication();
             app.UseAuthorization();
-        }
-
-        private void RegisterEventBus(IServiceCollection services)
-        {
-            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
-            {
-                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
-                {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, iLifetimeScope);
-                });
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var subscriptionClientName = Configuration["SubscriptionClientName"];
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(Configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
-
-            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-
-            services.AddTransient<ProductPriceChangedIntegrationEventHandler>();
-            services.AddTransient<OrderStartedIntegrationEventHandler>();
-        }
-
-        private void ConfigureEventBus(IApplicationBuilder app)
-        {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
-            eventBus.Subscribe<ProductPriceChangedIntegrationEvent, ProductPriceChangedIntegrationEventHandler>();
-            eventBus.Subscribe<OrderStartedIntegrationEvent, OrderStartedIntegrationEventHandler>();
         }
     }
 
