@@ -126,25 +126,6 @@ services:
       - "5102:80"
       - "9102:81"
 
-  ordering-backgroundtasks:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://0.0.0.0:80
-      - ConnectionString=${ESHOP_AZURE_ORDERING_DB:-Server=sqldata;Database=Microsoft.eShopOnContainers.Services.OrderingDb;User Id=sa;Password=Pass@word}
-      - EventBusConnection=${ESHOP_AZURE_SERVICE_BUS:-rabbitmq}
-      - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
-      - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
-      - UseCustomizationData=True
-      - AzureServiceBusEnabled=False
-      - CheckUpdateTime=30000
-      - GracePeriodTime=1
-      - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
-      - OrchestratorType=${ORCHESTRATOR_TYPE}
-      - UseLoadTest=${USE_LOADTEST:-False}
-      - Serilog__MinimumLevel__Override__Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ=Verbose
-    ports:
-      - "5111:80"
-
   payment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -263,8 +244,6 @@ services:
       - HealthChecksUI__HealthChecks__8__Uri=http://payment-api/hc
       - HealthChecksUI__HealthChecks__9__Name=Ordering SignalRHub HTTP Check
       - HealthChecksUI__HealthChecks__9__Uri=http://ordering-signalrhub/hc
-      - HealthChecksUI__HealthChecks__10__Name=Ordering HTTP Background Check
-      - HealthChecksUI__HealthChecks__10__Uri=http://ordering-backgroundtasks/hc
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:

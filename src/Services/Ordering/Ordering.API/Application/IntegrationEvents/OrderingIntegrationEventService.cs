@@ -46,7 +46,7 @@ namespace Ordering.API.Application.IntegrationEvents
                 {
                     await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
                     //_eventBus.Publish(logEvt.IntegrationEvent);
-                    await _publishEndpoint.Publish(logEvt.IntegrationEvent);
+                    await _publishEndpoint.Publish((object)logEvt.IntegrationEvent);
                     await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
                 }
                 catch (Exception ex)

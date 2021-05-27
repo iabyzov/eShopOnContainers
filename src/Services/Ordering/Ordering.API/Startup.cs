@@ -1,4 +1,7 @@
 ﻿using MassTransit;
+using MassTransit.EntityFrameworkCoreIntegration;
+using Microsoft.eShopOnContainers.Services.Ordering.API.Application.Sagas;
+using Microsoft.eShopOnContainers.Services.Ordering.API.Infrastructure;
 using Ordering.API.Application.IntegrationEvents.EventHandling;
 
 namespace Microsoft.eShopOnContainers.Services.Ordering.API
@@ -69,15 +72,36 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API
                     x.AddConsumer<OrderStockConfirmedIntegrationEventHandler>();
                     x.AddConsumer<OrderStockRejectedIntegrationEventHandler>();
                     x.AddConsumer<GracePeriodConfirmedIntegrationEventHandler>();
-                    
+
                     x.SetKebabCaseEndpointNameFormatter();
-                    x.UsingAzureServiceBus((context, cfg) =>
+
+                    x.AddSagaStateMachine<GracePeriodMachine, GraceState>().InMemoryRepository();
+                        //.EntityFrameworkRepository(r =>
+                    //{
+                        // r.ConcurrencyMode = ConcurrencyMode.Pessimistic;
+                        // r.AddDbContext<DbContext, GracePeriodDbContext>((provider, builder) =>
+                        // {
+                        //     builder.UseSqlServer(Configuration["ConnectionString"], m =>
+                        //     {
+                        //         m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        //         m.MigrationsHistoryTable($"__{nameof(GracePeriodDbContext)}");
+                        //     });
+                        // });
+                        
+                    //});
+
+                    
+                    //x.UsingAzureServiceBus((context, cfg) =>
+                    x.AddRabbitMqMessageScheduler();
+                    x.UsingRabbitMq((context, cfg) =>
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
                         cfg.ConfigureEndpoints(context);
+                        cfg.UseRabbitMqMessageScheduler();
                     });
                 })
                 .AddMassTransitHostedService()
+                //.AddDbContext<GracePeriodDbContext>(x => x.UseSqlServer(Configuration["ConnectionString"]))
                 //.AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration);
             //configure autofac

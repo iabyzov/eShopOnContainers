@@ -6,17 +6,13 @@
     public record OrderStatusChangedToAwaitingValidationIntegrationEvent : IntegrationEvent
     {
         public int OrderId { get; }
-        public string OrderStatus { get; }
-        public string BuyerName { get; }
         public IEnumerable<OrderStockItem> OrderStockItems { get; }
 
-        public OrderStatusChangedToAwaitingValidationIntegrationEvent(int orderId, string orderStatus, string buyerName,
+        public OrderStatusChangedToAwaitingValidationIntegrationEvent(int orderId,
             IEnumerable<OrderStockItem> orderStockItems)
         {
             OrderId = orderId;
             OrderStockItems = orderStockItems;
-            OrderStatus = orderStatus;
-            BuyerName = buyerName;
         }
     }
 
@@ -25,6 +21,10 @@
         public int ProductId { get; }
         public int Units { get; }
 
+        public OrderStockItem()
+        {
+            
+        }
         public OrderStockItem(int productId, int units)
         {
             ProductId = productId;

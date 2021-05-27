@@ -64,7 +64,8 @@ namespace Webhooks.API
                 x.AddConsumer<OrderStatusChangedToShippedIntegrationWebhooksEventHandler>();
                 x.AddConsumer<OrderStatusChangedToPaidIntegrationWebhooksEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingAzureServiceBus((context, cfg) =>
+                //x.UsingAzureServiceBus((context, cfg) =>
+                x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);

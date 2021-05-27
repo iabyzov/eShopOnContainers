@@ -57,7 +57,8 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 x.AddConsumer<OrderStatusChangedToAwaitingValidationIntegrationCatalogEventHandler>();
                 x.AddConsumer<OrderStatusChangedToPaidIntegrationCatalogEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingAzureServiceBus((context, cfg) =>
+                //x.UsingAzureServiceBus((context, cfg) =>
+                x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);

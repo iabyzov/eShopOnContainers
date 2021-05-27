@@ -175,7 +175,8 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                 x.AddConsumer<ProductPriceChangedIntegrationEventHandler>();
                 x.AddConsumer<OrderStartedIntegrationEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingAzureServiceBus((context, cfg) =>
+                x.UsingRabbitMq((context, cfg) =>
+                //x.UsingAzureServiceBus((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);

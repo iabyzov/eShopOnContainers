@@ -37,7 +37,8 @@ namespace Payment.API
             {
                 x.AddConsumer<OrderStatusChangedToStockConfirmedIntegrationPaymentEventHandler>();
                 x.SetKebabCaseEndpointNameFormatter();
-                x.UsingAzureServiceBus((context, cfg) =>
+                //x.UsingAzureServiceBus((context, cfg) =>
+                x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"]);
                     cfg.ConfigureEndpoints(context);

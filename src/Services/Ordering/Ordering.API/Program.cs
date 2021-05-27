@@ -25,16 +25,17 @@ try
 
     Log.Information("Applying migrations ({ApplicationContext})...", Program.AppName);
     host.MigrateDbContext<OrderingContext>((context, services) =>
-    {
-        var env = services.GetService<IWebHostEnvironment>();
-        var settings = services.GetService<IOptions<OrderingSettings>>();
-        var logger = services.GetService<ILogger<OrderingContextSeed>>();
+        {
+            var env = services.GetService<IWebHostEnvironment>();
+            var settings = services.GetService<IOptions<OrderingSettings>>();
+            var logger = services.GetService<ILogger<OrderingContextSeed>>();
 
-        new OrderingContextSeed()
-            .SeedAsync(context, env, settings, logger)
-            .Wait();
-    })
-    .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
+            new OrderingContextSeed()
+                .SeedAsync(context, env, settings, logger)
+                .Wait();
+        })
+        .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
+    //.MigrateDbContext<GracePeriodDbContext>((_, __) => { });
 
     Log.Information("Starting web host ({ApplicationContext})...", Program.AppName);
     host.Run();

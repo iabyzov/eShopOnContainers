@@ -110,7 +110,8 @@ namespace Ordering.SignalrHub
                     x.AddConsumer<OrderStatusChangedToCancelledIntegrationEventHandler>();
                     x.AddConsumer<OrderStatusChangedToSubmittedIntegrationEventHandler>();
                     x.SetKebabCaseEndpointNameFormatter();
-                    x.UsingAzureServiceBus((context, cfg) =>
+                    //x.UsingAzureServiceBus((context, cfg) =>
+                    x.UsingRabbitMq((context, cfg) =>
                     {
                         cfg.Host(Configuration["EventBusConnection"]);
                         cfg.ConfigureEndpoints(context);

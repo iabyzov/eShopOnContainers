@@ -1,4 +1,5 @@
-﻿using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
+﻿using System.Collections.Generic;
+using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Events;
 
 namespace Ordering.API.Application.IntegrationEvents.Events
 {
@@ -9,7 +10,15 @@ namespace Ordering.API.Application.IntegrationEvents.Events
     {
         public string UserId { get; set; }
 
-        public OrderStartedIntegrationEvent(string userId)
-            => UserId = userId;
+        public int OrderId { get; set; }
+
+        public List<OrderStockItem> OrderedItems { get; set; }
+
+        public OrderStartedIntegrationEvent(string userId, int orderId, List<OrderStockItem> orderStockItems)
+        {
+            UserId = userId;
+            OrderId = orderId;
+            OrderedItems = orderStockItems;
+        }
     }
 }
